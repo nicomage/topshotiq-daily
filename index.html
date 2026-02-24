@@ -484,8 +484,18 @@ function parseCSV(text) {
 }
 
 async function fetchCSV(url) {
-  const r = await fetch('https://corsproxy.io/?'+encodeURIComponent(url));
-  return r.text();
+  const proxies = [
+    `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+    `https://thingproxy.freeboard.io/fetch/${url}`,
+    `https://corsproxy.io/?${encodeURIComponent(url)}`,
+  ];
+  for (const proxy of proxies) {
+    try {
+      const r = await fetch(proxy);
+      if (r.ok) return r.text();
+    } catch(e) { continue; }
+  }
+  throw new Error('All proxies failed');
 }
 
 // Date utils
